@@ -28,14 +28,13 @@ if "patient_data" not in st.session_state:
         {"Bed": 4, "Name": "P. Singh", "Age": 71, "HR": 78, "BP": "122/80", "SpO2": 98, "RR": 14, "Temp": "36.6 °C", "Risk": "STABLE", "Score": 12, "Doctor": "Dr. Mehta"},
         {"Bed": 5, "Name": "A. Verma", "Age": 50, "HR": 124, "BP": "88/54", "SpO2": 89, "RR": 28, "Temp": "39.1 °C", "Risk": "CRITICAL", "Score": 92, "Doctor": "Dr. Khan"},
         {"Bed": 6, "Name": "S. Khan", "Age": 66, "HR": 110, "BP": "96/61", "SpO2": 92, "RR": 22, "Temp": "38.2 °C", "Risk": "CRITICAL", "Score": 87, "Doctor": "Dr. Khan"},
-        {"Bed": 7, "Name": "N. Rao", "Age": 39, "HR": 74, "BP": "115/75", "SpO2": 99, "RR": 15, "Temp": "36.7 °C", "Risk": "STABLE", "Score": 08, "Doctor": "Dr. Rao"},
+        {"Bed": 7, "Name": "N. Rao", "Age": 39, "HR": 74, "BP": "115/75", "SpO2": 99, "RR": 15, "Temp": "36.7 °C", "Risk": "STABLE", "Score": 8, "Doctor": "Dr. Rao"},
         {"Bed": 8, "Name": "K. Gupta", "Age": 53, "HR": 98, "BP": "135/88", "SpO2": 93, "RR": 19, "Temp": "37.9 °C", "Risk": "WARNING", "Score": 62, "Doctor": "Dr. Khan"},
         {"Bed": 9, "Name": "T. Das", "Age": 68, "HR": 80, "BP": "120/78", "SpO2": 97, "RR": 16, "Temp": "36.9 °C", "Risk": "STABLE", "Score": 15, "Doctor": "Dr. Rao"},
         {"Bed": 10, "Name": "J. Pawar", "Age": 61, "HR": 102, "BP": "110/70", "SpO2": 94, "RR": 21, "Temp": "37.6 °C", "Risk": "WARNING", "Score": 58, "Doctor": "Dr. Mehta"},
         {"Bed": 11, "Name": "Unoccupied", "Age": "-", "HR": 0, "BP": "-/-", "SpO2": 0, "RR": 0, "Temp": "-", "Risk": "FREE", "Score": 0, "Doctor": "-"},
         {"Bed": 12, "Name": "Unoccupied", "Age": "-", "HR": 0, "BP": "-/-", "SpO2": 0, "RR": 0, "Temp": "-", "Risk": "FREE", "Score": 0, "Doctor": "-"}
     ])
-
 # ==========================================
 # CUSTOM CSS FOR FUTURISTIC UI & ANIMATIONS
 # ==========================================
