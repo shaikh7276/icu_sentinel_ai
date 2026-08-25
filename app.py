@@ -4,7 +4,6 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 import datetime
-import time
 
 # ==========================================
 # STREAMLIT PAGE CONFIG & INITIAL SETUP
@@ -35,30 +34,21 @@ if "patient_data" not in st.session_state:
         {"Bed": 11, "Name": "Unoccupied", "Age": "-", "HR": 0, "BP": "-/-", "SpO2": 0, "RR": 0, "Temp": "-", "Risk": "FREE", "Score": 0, "Doctor": "-"},
         {"Bed": 12, "Name": "Unoccupied", "Age": "-", "HR": 0, "BP": "-/-", "SpO2": 0, "RR": 0, "Temp": "-", "Risk": "FREE", "Score": 0, "Doctor": "-"}
     ])
+
 # ==========================================
 # CUSTOM CSS FOR FUTURISTIC UI & ANIMATIONS
 # ==========================================
 st.markdown("""
 <style>
-    /* Dark Theme Core Styles */
     .stApp {
         background-color: #050b14;
         color: #e2e8f0;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
-    
-    /* Neon Glow Text */
     .cyan-glow {
         color: #00f0ff;
         text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4);
     }
-    
-    .red-glow {
-        color: #ff3366;
-        text-shadow: 0 0 10px rgba(255, 51, 102, 0.6);
-    }
-
-    /* Glassmorphism Cards */
     .glass-card {
         background: rgba(13, 25, 48, 0.7);
         backdrop-filter: blur(12px);
@@ -70,124 +60,43 @@ st.markdown("""
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     }
-    
     .glass-card:hover {
         transform: translateY(-3px);
         border-color: rgba(0, 240, 255, 0.4);
         box-shadow: 0 10px 30px 0 rgba(0, 240, 255, 0.2);
     }
-
-    /* Bed Status Mini Cards */
-    .bed-card-stable {
-        background: rgba(16, 185, 129, 0.08);
-        border-left: 4px solid #10b981;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 10px;
-    }
-    
-    .bed-card-warning {
-        background: rgba(245, 158, 11, 0.08);
-        border-left: 4px solid #f59e0b;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 10px;
-    }
-    
-    .bed-card-critical {
-        background: rgba(239, 68, 68, 0.12);
-        border-left: 4px solid #ef4444;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 10px;
-        animation: pulse-border 2s infinite;
-    }
-
-    .bed-card-free {
-        background: rgba(100, 116, 139, 0.08);
-        border-left: 4px solid #64748b;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 10px;
-    }
-
+    .bed-card-stable { background: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .bed-card-warning { background: rgba(245, 158, 11, 0.08); border-left: 4px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .bed-card-critical { background: rgba(239, 68, 68, 0.12); border-left: 4px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 10px; animation: pulse-border 2s infinite; }
+    .bed-card-free { background: rgba(100, 116, 139, 0.08); border-left: 4px solid #64748b; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
     @keyframes pulse-border {
         0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
         70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
         100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
-
-    /* Animated AI Orb */
-    .orb-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 200px;
-    }
-    
+    .orb-container { display: flex; justify-content: center; align-items: center; height: 200px; }
     .ai-orb {
-        width: 130px;
-        height: 130px;
-        border-radius: 50%;
+        width: 130px; height: 130px; border-radius: 50%;
         background: radial-gradient(circle at 30% 30%, #00f0ff, #7000ff, #050b14);
         box-shadow: 0 0 30px #00f0ff, inset 0 0 15px #ffffff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-weight: 900;
-        font-size: 24px;
-        color: #ffffff;
+        display: flex; justify-content: center; align-items: center;
+        font-weight: 900; font-size: 24px; color: #ffffff;
         text-shadow: 0 0 10px #00f0ff;
         animation: float 4s ease-in-out infinite, glow 2s ease-in-out infinite alternate;
         position: relative;
     }
-    
     .ai-orb::before {
-        content: '';
-        position: absolute;
-        width: 155px;
-        height: 155px;
-        border-radius: 50%;
-        border: 2px dashed #00f0ff;
-        animation: spin 10s linear infinite;
+        content: ''; position: absolute; width: 155px; height: 155px;
+        border-radius: 50%; border: 2px dashed #00f0ff; animation: spin 10s linear infinite;
     }
-
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-        100% { transform: translateY(0px); }
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Live Pulsing Dot */
-    .pulse-dot {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #10b981;
-        box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
-        animation: pulse 1.5s infinite;
-        margin-right: 8px;
-    }
-
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
-
-    /* Custom Badges */
+    @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .pulse-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 rgba(16, 185, 129, 0.4); animation: pulse 1.5s infinite; margin-right: 8px; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
     .badge-critical { background-color: #ef4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
     .badge-warning { background-color: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
     .badge-stable { background-color: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
     .badge-free { background-color: #64748b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-
-    /* Hide standard Streamlit header/footer for clean UI */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
 </style>
@@ -237,19 +146,13 @@ with st.sidebar:
 # ==========================================
 def generate_ecg_wave():
     x = np.linspace(0, 4, 400)
-    # Simulate standard P-QRS-T complex pattern repeat
     y = np.sin(x * 2 * np.pi * 1.8) * 0.1
     for i in range(len(x)):
         t = x[i] % 0.8
-        if 0.2 < t < 0.25:
-            y[i] -= 0.15  # Q
-        elif 0.25 <= t < 0.32:
-            y[i] += 1.8   # R
-        elif 0.32 <= t < 0.37:
-            y[i] -= 0.4   # S
-        elif 0.45 < t < 0.6:
-            y[i] += 0.25  # T
-    # Add minor baseline noise
+        if 0.2 < t < 0.25: y[i] -= 0.15
+        elif 0.25 <= t < 0.32: y[i] += 1.8
+        elif 0.32 <= t < 0.37: y[i] -= 0.4
+        elif 0.45 < t < 0.6: y[i] += 0.25
     y += np.random.normal(0, 0.02, len(x))
     return x, y
 
@@ -267,7 +170,6 @@ def trigger_vital_simulation():
 # PAGE 1: COMMAND CENTER
 # ==========================================
 if page == "◈ Command Center":
-    # Header Section
     c_title, c_time = st.columns([3, 1])
     with c_title:
         st.markdown("<h1 style='margin:0;'>ICU Intelligence Command Center</h1>", unsafe_allow_html=True)
@@ -283,7 +185,6 @@ if page == "◈ Command Center":
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Hero Section with Glowing AI Orb
     hero_left, hero_right = st.columns([2.2, 1])
     with hero_left:
         st.markdown("""
@@ -313,7 +214,6 @@ if page == "◈ Command Center":
             </div>
         """, unsafe_allow_html=True)
 
-    # 6 KPI Cards Row
     k1, k2, k3, k4, k5, k6 = st.columns(6)
     kpis = [
         ("ICU BEDS", "12", "9 Occupied · 3 Free", "#00f0ff"),
@@ -323,7 +223,6 @@ if page == "◈ Command Center":
         ("DEVICES ONLINE", "94%", "1 Maint. Alert", "#00f0ff"),
         ("AI EARLY WARN", "87%", "Bed 6 Highest Risk", "#7000ff")
     ]
-    
     cols = [k1, k2, k3, k4, k5, k6]
     for i, (title, val, sub, col) in enumerate(kpis):
         with cols[i]:
@@ -335,20 +234,15 @@ if page == "◈ Command Center":
                 </div>
             """, unsafe_allow_html=True)
 
-    # Main Grid: Bed Board (Left 2 cols) & Alerts/ECG (Right 1 col)
     grid_left, grid_right = st.columns([2, 1])
-
     with grid_left:
         st.markdown("<h3 style='font-size: 16px; color: #00f0ff;'>🛏️ Live ICU Bed Matrix</h3>", unsafe_allow_html=True)
         beds_df = st.session_state.patient_data
-        
-        # Grid of 12 Bed Mini Cards
         b_cols = st.columns(3)
         for idx, row in beds_df.iterrows():
             col_target = b_cols[idx % 3]
             card_class = f"bed-card-{row['Risk'].lower()}"
             badge_class = f"badge-{row['Risk'].lower()}"
-            
             with col_target:
                 if row['Risk'] == 'FREE':
                     st.markdown(f"""
@@ -378,7 +272,6 @@ if page == "◈ Command Center":
 
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("<h3 style='font-size: 16px; color: #00f0ff;'>📊 Resource Utilization & Staffing</h3>", unsafe_allow_html=True)
-        
         r1, r2 = st.columns(2)
         with r1:
             st.markdown("""
@@ -418,7 +311,6 @@ if page == "◈ Command Center":
             ("Bed 3 · WARNING", "AI Sepsis Risk Score increased +14%", "#f59e0b"),
             ("Bed 10 · WARNING", "Routine Nurse Review overdue", "#f59e0b")
         ]
-        
         for title, desc, color in alerts:
             st.markdown(f"""
                 <div style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid {color}; padding: 8px 12px; margin-bottom: 8px; border-radius: 4px;">
@@ -428,8 +320,6 @@ if page == "◈ Command Center":
             """, unsafe_allow_html=True)
 
         st.markdown("<h3 style='font-size: 16px; color: #00f0ff; margin-top: 15px;'>📈 Real-Time ECG Stream</h3>", unsafe_allow_html=True)
-        
-        # Real-time ECG Plotly Graph
         x_ecg, y_ecg = generate_ecg_wave()
         fig_ecg = go.Figure()
         fig_ecg.add_trace(go.Scatter(x=x_ecg, y=y_ecg, mode='lines', line=dict(color='#00f0ff', width=2)))
@@ -443,7 +333,6 @@ if page == "◈ Command Center":
             yaxis=dict(showgrid=True, gridcolor='rgba(0,240,255,0.1)', showticklabels=False)
         )
         st.plotly_chart(fig_ecg, use_container_width=True, config={'displayModeBar': False})
-        
         st.markdown("""
             <div style="display: flex; justify-content: space-around; background: rgba(0,240,255,0.05); padding: 8px; border-radius: 6px; border: 1px solid rgba(0,240,255,0.1); text-align: center;">
                 <div><span style="font-size: 9px; color: #a0aec0;">HR</span><br><b style="color:#ff3366; font-size:14px;">110 BPM</b></div>
@@ -460,7 +349,6 @@ elif page == "❤️ Patient Monitor":
     st.markdown("<p style='color: #a0aec0;'>Real-time multiparameter patient status and live telemetry simulation</p>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Search & Filter Bar
     c_search, c_risk, c_btn = st.columns([2, 1.5, 1])
     with c_search:
         search_query = st.text_input("🔍 Search by Patient Name or Doctor", "")
@@ -472,14 +360,12 @@ elif page == "❤️ Patient Monitor":
             trigger_vital_simulation()
             st.rerun()
 
-    # Filter Data
     df_display = st.session_state.patient_data.copy()
     if search_query:
         df_display = df_display[df_display["Name"].str.contains(search_query, case=False) | df_display["Doctor"].str.contains(search_query, case=False)]
     if risk_filter != "All Levels":
         df_display = df_display[df_display["Risk"] == risk_filter]
 
-    # Styled Table Display
     st.dataframe(
         df_display,
         column_config={
@@ -501,12 +387,10 @@ elif page == "🧠 AI Risk Engine":
     st.markdown("<p style='color: #a0aec0;'>Machine learning predictive models assessing multi-organ physiological deterioration</p>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Bed Selection for AI Deep Dive
     selected_bed = st.selectbox("Select ICU Bed for AI Diagnostic Analysis:", [1, 3, 5, 6, 8, 10], index=3)
     p_data = st.session_state.patient_data[st.session_state.patient_data["Bed"] == selected_bed].iloc[0]
 
     ai_col1, ai_col2 = st.columns([1.2, 2])
-
     with ai_col1:
         st.markdown(f"""
             <div class="glass-card" style="text-align: center;">
@@ -529,29 +413,21 @@ elif page == "🧠 AI Risk Engine":
                 <h3 style="color: #00f0ff; font-size: 16px; margin-top: 0;">AI Feature Attribution (SHAP Contribution Analysis)</h3>
                 <p style="color: #a0aec0; font-size: 12px;">Key vital signs and laboratory markers driving the current AI risk prediction:</p>
         """, unsafe_allow_html=True)
-        
-        # Feature Contribution Chart
         factors = ["SpO2 Desaturation Trend", "Elevated Heart Rate", "Mean Arterial BP Drop", "Lactate Elevation", "WBC Count Marker"]
         weights = [86, 73, 69, 61, 45]
-        
         fig_shap = px.bar(
             x=weights, y=factors, orientation='h',
             labels={'x': 'Risk Weight Factor (%)', 'y': 'Clinical Feature'},
-            color=weights,
-            color_continuous_scale=['#00f0ff', '#ff3366']
+            color=weights, color_continuous_scale=['#00f0ff', '#ff3366']
         )
         fig_shap.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(5, 11, 20, 0.9)',
-            font=dict(color='#e2e8f0'),
-            height=200,
-            margin=dict(l=10, r=10, t=10, b=10),
+            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(5, 11, 20, 0.9)',
+            font=dict(color='#e2e8f0'), height=200, margin=dict(l=10, r=10, t=10, b=10),
             coloraxis_showscale=False
         )
         st.plotly_chart(fig_shap, use_container_width=True, config={'displayModeBar': False})
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # 3 AI Prediction Cards
     st.markdown("<h3 style='font-size: 16px; color: #00f0ff; margin-top: 10px;'>🔮 Specialized Predictive Sub-Models</h3>", unsafe_allow_html=True)
     pm1, pm2, pm3 = st.columns(3)
     with pm1:
@@ -579,7 +455,6 @@ elif page == "🧠 AI Risk Engine":
             </div>
         """, unsafe_allow_html=True)
 
-    # Mandatory Clinical Disclaimer
     st.warning("⚠️ **CLINICAL DISCLAIMER & REGULATORY BOUNDARY:** AI outputs are decision-support signals designed solely for demonstration and clinical prioritization. They do not constitute formal medical diagnoses or treatment orders.")
 
 # ==========================================
@@ -590,7 +465,6 @@ elif page == "⚠️ Early Warnings":
     st.markdown("<p style='color: #a0aec0;'>Multilevel automated clinical alert protocol and escalation workflow</p>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 3 Alert Levels Explanation Cards
     e1, e2, e3 = st.columns(3)
     with e1:
         st.markdown("""
@@ -618,7 +492,6 @@ elif page == "⚠️ Early Warnings":
         """, unsafe_allow_html=True)
 
     st.markdown("<br><h3 style='font-size: 16px; color: #00f0ff;'>📋 Live Escalation Feed & History</h3>", unsafe_allow_html=True)
-
     alert_logs = [
         {"Time": "14:22:10", "Bed": "Bed 6", "Level": "LEVEL 3", "Trigger": "SpO2 drop to 91% + Tachypnea (28 bpm)", "Escalated To": "Dr. Khan & Nurse Priya S."},
         {"Time": "14:15:00", "Bed": "Bed 1", "Level": "LEVEL 3", "Trigger": "Hypotension Alert (BP 92/58 mmHg)", "Escalated To": "Dr. Mehta & Nurse Anjali P."},
@@ -638,7 +511,6 @@ elif page == "👨‍⚕️ Doctors & Nurses":
     st.markdown("<br>", unsafe_allow_html=True)
 
     s1, s2 = st.columns(2)
-
     with s1:
         st.markdown("<h3 style='font-size: 16px; color: #00f0ff;'>👨‍⚕️ Medical Specialists on Duty</h3>", unsafe_allow_html=True)
         doctors = [
@@ -678,12 +550,9 @@ elif page == "🛏️ Bed Management":
     st.markdown("<br>", unsafe_allow_html=True)
 
     bm1, bm2, bm3 = st.columns(3)
-    with bm1:
-        st.markdown("<div class='glass-card' style='text-align:center;'><h3>Total Beds</h3><h1 style='color:#00f0ff;'>12</h1></div>", unsafe_allow_html=True)
-    with bm2:
-        st.markdown("<div class='glass-card' style='text-align:center;'><h3>Occupied Beds</h3><h1 style='color:#ff3366;'>9</h1></div>", unsafe_allow_html=True)
-    with bm3:
-        st.markdown("<div class='glass-card' style='text-align:center;'><h3>Available Beds</h3><h1 style='color:#10b981;'>3</h1></div>", unsafe_allow_html=True)
+    with bm1: st.markdown("<div class='glass-card' style='text-align:center;'><h3>Total Beds</h3><h1 style='color:#00f0ff;'>12</h1></div>", unsafe_allow_html=True)
+    with bm2: st.markdown("<div class='glass-card' style='text-align:center;'><h3>Occupied Beds</h3><h1 style='color:#ff3366;'>9</h1></div>", unsafe_allow_html=True)
+    with bm3: st.markdown("<div class='glass-card' style='text-align:center;'><h3>Available Beds</h3><h1 style='color:#10b981;'>3</h1></div>", unsafe_allow_html=True)
 
     st.markdown("<h3 style='font-size: 16px; color: #00f0ff;'>🔄 Bed Movement & Event Log</h3>", unsafe_allow_html=True)
     bed_events = [
@@ -740,7 +609,6 @@ elif page == "✚ Clinical Support":
     st.markdown("<p style='color: #a0aec0;'>Intelligent clinical tools, safety verification systems, and analytical summary engines</p>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 6 Premium Cards
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown("""
